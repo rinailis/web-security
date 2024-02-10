@@ -1,4 +1,4 @@
- # Отчет
+ <!-- # Отчет
 
 ### Пратическая №1
 создаем базу данных MySQL с помощью phpMyAdmin  
@@ -56,4 +56,4 @@ if (!$_SESSION['role']) {
 }
 ```
 
-![image](https://github.com/rinailis/web-security/assets/131038016/307ed8bd-07ed-4495-9013-e29fb4ac98b7)
+![image](https://github.com/rinailis/web-security/assets/131038016/307ed8bd-07ed-4495-9013-e29fb4ac98b7) -->
