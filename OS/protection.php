@@ -3,8 +3,8 @@ $file_name = $_GET['file_name'];
 $result_code = null;
 
 if (isset($file_name)) {
-    $filter = preg_replace('/\s+/', '_', $file_name);
-    $file_name = escapeshellarg($filter);
+    // $filter = preg_replace('/\s+/', '_', $file_name);
+    $file_name = escapeshellarg($file_name);
 
     system("echo. > ".$file_name, $result_code);
     if ($result_code === 0) {
