@@ -1,12 +1,10 @@
 <?php
-http_response_code(400); // Устанавливаем код ответа 400 (Bad Request)
-echo json_encode('cscs');
-die('oops!');
+
 // Подключение к базе данных
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "myDB";
+$dbname = "security";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -37,11 +35,6 @@ function validatePassword($password)
         return false;
     }
 
-    // Проверка на часто повторяющиеся комбинации
-    if (preg_match('/(?=(.*?[a-zA-Z]{3,}))/i', $password)) {
-        return false;
-    }
-
     // Проверка на содержание названия текущего месяца
     $currentMonth = strtolower(date('F'));
     if (strpos($password, $currentMonth) === false) {
@@ -64,9 +57,10 @@ function validatePassword($password)
 // Функция для валидации номера телефона
 function validatePhoneNumber($phoneNumber)
 {
+
     // Реализация маски и проверка кода страны
     // Допустим, формат номера телефона +1234567890
-    if (!preg_match('/^\+\d{11}$/', $phoneNumber)) {
+    if (!preg_match('/^\+\d{1,3}\s\(\d{3}\)\s\d{3}-\d{4}$/', $phoneNumber)) {
         return false;
     }
     return true;
@@ -75,11 +69,6 @@ function validatePhoneNumber($phoneNumber)
 // Функция для валидации даты рождения
 function validateDateOfBirth($dob)
 {
-    // Проверка формата даты
-    $date = date_parse($dob);
-    if (!$date || !checkdate($date['month'], $date['day'], $date['year'])) {
-        return false;
-    }
 
     // Проверка на то, что дата рождения не в будущем и не старше 111 лет
     $today = new DateTime();
@@ -97,7 +86,7 @@ function validateDateOfBirth($dob)
 function validateGender($gender)
 {
     // Проверка на соответствие допустимых значений
-    $validGenders = array('М', 'Ж');
+    $validGenders = array('м', 'ж', 'д');
     if (!in_array($gender, $validGenders)) {
         return false;
     }
@@ -118,7 +107,7 @@ function validateUsername($username, $conn)
     }
 
     // Проверка на уникальность в базе данных
-    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -175,59 +164,6 @@ function validateImages($images, $conn)
     return true;
 }
 
-// // Проверка POST запроса и валидация данных
-// if ($_SERVER["REQUEST_METHOD"] == "POST") {
-//     $email = $_POST['email'];
-//     $password = $_POST['password'];
-//     $phoneNumber = $_POST['phone'];
-//     $dob = $_POST['dob'];
-//     $gender = $_POST['gender'];
-//     $username = $_POST['username'];
-//     $images = $_FILES['images'];
-
-//     // Валидация данных
-//     $errors = array();
-
-//     if (!validateEmail($email)) {
-//         $errors[] = "Invalid email";
-//     }
-
-//     if (!validatePassword($password)) {
-//         $errors[] = "Invalid password";
-//     }
-
-//     if (!validatePhoneNumber($phoneNumber)) {
-//         $errors[] = "Invalid phone number";
-//     }
-
-//     if (!validateDateOfBirth($dob)) {
-//         $errors[] = "Invalid date of birth";
-//     }
-
-//     if (!validateGender($gender)) {
-//         $errors[] = "Invalid gender";
-//     }
-
-//     if (!validateUsername($username, $conn)) {
-//         $errors[] = "Invalid username";
-//     }
-
-//     if (!validateImages($images)) {
-//         $errors[] = "Invalid images";
-//     }
-
-//     // Вывод ошибок или сохранение данных
-//     if (!empty($errors)) {
-//         // Обработка ошибок
-//         foreach ($errors as $error) {
-//             echo $error . "<br>";
-//         }
-//     } else {
-//         // Сохранение данных в базе данных или другие действия
-//         echo "Data is valid. Proceed with saving or further processing";
-//     }
-// }
-
 // Проверка POST запроса и валидация данных
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
@@ -278,7 +214,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $conn->prepare("INSERT INTO user (email, password, phone, birth, gender, username, image) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
         // Привязка параметров
-        $stmt->bind_param("sssssss", $email, $password, $phone, $birth, $gender, $username, $image['name']);
+        $stmt->bind_param("sssssss", $email, $password, $phoneNumber, $dob, $gender, $username, $images['name']);
 
         // Выполнение запроса
         if ($stmt->execute()) {

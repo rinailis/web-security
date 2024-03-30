@@ -8,9 +8,47 @@ let inputGender = document.querySelector("#gender");
 let inputUsername = document.querySelector("#username");
 let inputImage = document.querySelector("#image");
 // маска для телефона
-const phoneMask = IMask(inputPhone, {
-  mask: "+{7}(000)000-00-00",
+// const phoneMask = IMask(inputPhone, {
+//   mask: "+{7}(000)000-00-00",
+// });
+// function getSelectedOption() {
+//   var select = document.getElementById("countryCode");
+//   var selectedOption = select.options[select.selectedIndex];
+//   console.log("Выбранный элемент:", selectedOption.value, selectedOption.text);
+// }
+
+// Получаем список кодов стран
+var countryCodeSelect = document.getElementById("countryCode");
+
+// Определяем маску для поля ввода телефонного номера
+var phoneMask = IMask(inputPhone, {
+  mask: [
+    {
+      mask: "+{1} (000) 000-0000",
+      startsWith: "+", // Символы, которые начинаются с плюса
+    },
+    {
+      mask: "+{1}(000) 000-0000",
+    },
+  ],
+  dispatch: function (appended, dynamicMasked) {
+    var value = (dynamicMasked.value + appended).replace(/\D/g, "");
+
+    if (value.startsWith("0") || value.startsWith("1")) {
+      return dynamicMasked.compiledMasks[0];
+    }
+
+    return dynamicMasked.compiledMasks[1];
+  },
 });
+
+// Обработчик изменения выбора кода страны
+countryCodeSelect.addEventListener("change", function () {
+  var countryCode = countryCodeSelect.value;
+  phoneMask.unmaskedValue = "+" + countryCode; // Обновляем значение маски с новым кодом страны
+  inputPhone.focus(); // Переводим фокус на поле ввода телефонного номера
+});
+
 const currentDate = new Date();
 let message = "";
 let condition = "";
@@ -49,6 +87,7 @@ function valedation(form) {
   }
 
   form.querySelectorAll(".field").forEach((field) => {
+    result = true;
     removeError(field);
     if (field.value == "") {
       createError(field, "*заполните поле");
@@ -59,7 +98,7 @@ function valedation(form) {
       //     createError(inputMail, "*некорректный адрес эл.почты");
       //     result = false;
       //   } else {
-      //     result = true;
+      //     // return true;
       //   }
       // });
 
@@ -79,19 +118,123 @@ function valedation(form) {
           .toLocaleString("en", { month: "long" })
           .toLowerCase();
         const regSumbol = /(?=(.*\W){2,})/;
+        const regSumbolSpec = /([!@#$%^&*()_+{}\[\]:;\"'<,>.|\/?]){2,}/;
         const regSumbolRepeat = /(.)\1/;
         const regSumbolLanguage = /(?=.*[A-Za-z])(?=.*[А-Яа-я]).*/;
         const disallowedPasswords = [
           "123456",
           "password",
-          // "123456789",
+          "123456789",
           "qwerty",
           "12345678",
           "111111",
-          // "1234567890",
-          // "1234567",
+          "1234567890",
+          "1234567",
           "password1",
           "12345",
+          "123123",
+          "000000",
+          "abc123",
+          "1234",
+          "123321",
+          "654321",
+          "666666",
+          "987654321",
+          "7777777",
+          "555555",
+          "112233",
+          "888888",
+          "333333",
+          "0000",
+          "qwerty123",
+          "123qwe",
+          "1q2w3e4r",
+          "123abc",
+          "123qweasd",
+          "12345qwert",
+          "qwertyuiop",
+          "123qwe!@#",
+          "qazwsx",
+          "1qaz2wsx",
+          "1qazxsw2",
+          "zaq12wsx",
+          "password123",
+          "asdfgh",
+          "zxcvbn",
+          "987654",
+          "123qweasd",
+          "zxcvbnm",
+          "qwerty1234",
+          "12345qwerty",
+          "12345asdfg",
+          "123456zxcvbn",
+          "qazwsxedc",
+          "qwe123",
+          "1q2w3e",
+          "123qwe123",
+          "qweasd",
+          "qweasdzxc",
+          "qazxsw",
+          "qazwsx123",
+          "12345zxcvbn",
+          "password1234",
+          "password123456",
+          "12345qaz",
+          "123456a",
+          "1q2w3e4r5t",
+          "1234qwer",
+          "1qazxsw23",
+          "1qaz@wsx",
+          "1q2w3e4r5t6y",
+          "1qaz2wsx3edc",
+          "1qaz2wsx3edc4rfv",
+          "1q2w3e4r5t!",
+          "1q2w3e4r5t@",
+          "1q2w3e4r5t#",
+          "1q2w3e4r5t$",
+          "1q2w3e4r5t%",
+          "1q2w3e4r5t^",
+          "1q2w3e4r5t&",
+          "1q2w3e4r5t*",
+          "1q2w3e4r5t(",
+          "1q2w3e4r5t)",
+          "1q2w3e4r5t-",
+          "1q2w3e4r5t_",
+          "1q2w3e4r5t+",
+          "1q2w3e4r5t=",
+          "1q2w3e4r5t{",
+          "1q2w3e4r5t}",
+          "1q2w3e4r5t[",
+          "1q2w3e4r5t]",
+          "1q2w3e4r5t|",
+          "1q2w3e4r5t;",
+          "1q2w3e4r5t:",
+          "1q2w3e4r5t'",
+          '1q2w3e4r5t"',
+          "1q2w3e4r5t<",
+          "1q2w3e4r5t>",
+          "1q2w3e4r5t,",
+          "1q2w3e4r5t.",
+          "1q2w3e4r5t?",
+          "1q2w3e4r5t/",
+          "1q2w3e4r5t~",
+          "1q2w3e4r5t`",
+          "1q2w3e4r5t!",
+          "1q2w3e4r5t@",
+          "1q2w3e4r5t#",
+          "1q2w3e4r5t$",
+          "1q2w3e4r5t%",
+          "1q2w3e4r5t^",
+          "1q2w3e4r5t&",
+          "1q2w3e4r5t*",
+          "1q2w3e4r5t(",
+          "1q2w3e4r5t)",
+          "1q2w3e4r5t-",
+          "1q2w3e4r5t_",
+          "1q2w3e4r5t+",
+          "1q2w3e4r5t=",
+          "1q2w3e4",
+          "qwe"
         ];
         disallowedPasswords.forEach((disallowedPassword) => {
           if (inputPassword.value.toLowerCase().includes(disallowedPassword)) {
@@ -125,6 +268,9 @@ function valedation(form) {
             "*Пароль должен содержать минимум 2 спец символа"
           );
           result = false;
+        } else if (regSumbolSpec.test(inputPassword.value)) {
+          createError(inputPassword, "*Спец символы не должны идти подряд");
+          result = false;
         } else if (!regSumbolLanguage.test(inputPassword.value)) {
           createError(
             inputPassword,
@@ -132,7 +278,7 @@ function valedation(form) {
           );
           result = false;
         } else {
-          result = true;
+          // // return true;
         }
       });
 
@@ -159,7 +305,7 @@ function valedation(form) {
           createError(inputBirth, "*Дата рождения не должна превышать 111 лет");
           result = false;
         } else {
-          result = true;
+          // return true;
         }
       });
 
@@ -181,7 +327,7 @@ function valedation(form) {
           );
           result = false;
         } else {
-          result = true;
+          // return true;
         }
 
         // if (!inputPassword.value.toLowerCase().includes(currentMonth)) {
@@ -194,7 +340,7 @@ function valedation(form) {
         //   createError(inputBirth, "*Дата рождения не должна превышать 111 лет");
         //   result = false;
         // } else {
-        //   result = true;
+        //   // return true;
         // }
       });
 
@@ -208,7 +354,7 @@ function valedation(form) {
           );
           result = false;
         } else {
-          result = true;
+          // return true;
         }
       });
 
@@ -220,7 +366,7 @@ function valedation(form) {
         // Проверка наличия выбранных файлов
         if (files.length === 0) {
           createError(fileInput, "*Файл не выбран" + fileName);
-            result = false;
+          result = false;
         }
 
         // Проверка расширения файла, размера и имени
@@ -229,7 +375,7 @@ function valedation(form) {
           var fileName = file.name;
           var fileSize = file.size;
           var fileExtension = fileName.split(".").pop().toLowerCase();
-          var fileNameNotExtension = fileName.split('.').slice(0, -1).join(''); // Имя без расширения
+          var fileNameNotExtension = fileName.split(".").slice(0, -1).join(""); // Имя без расширения
 
           // Проверка расширения файла
           var allowedExtensions = ["jpg", "jpeg", "png", "gif"];
@@ -240,14 +386,17 @@ function valedation(form) {
           } else if (fileSize > maxSize) {
             createError(fileInput, "*Максимальный размер файла 1MB");
             result = false;
-          } else if (fileNameNotExtension.length < 5 || fileNameNotExtension.length > 50) {
+          } else if (
+            fileNameNotExtension.length < 5 ||
+            fileNameNotExtension.length > 50
+          ) {
             createError(
               fileInput,
               "*Имя файла должно быть больше 5 символов и меньше 50"
             );
             result = false;
           } else {
-            result = true;
+            // return true;
           }
         }
       }
@@ -275,7 +424,7 @@ document.querySelectorAll(".add-form").forEach((i) => {
     event.preventDefault();
     let formData = new FormData(this);
     if (valedation(this) == true) {
-      let response = await fetch("/controllers/validation.php", {
+      let response = await fetch("./controllers/validation.php", {
         method: "POST",
         body: formData,
       });
