@@ -1,11 +1,11 @@
 <?php
- http_response_code(400); // Устанавливаем код ответа 400 (Bad Request)
- echo json_encode('cscs');
- die ('oops!');
+http_response_code(400); // Устанавливаем код ответа 400 (Bad Request)
+echo json_encode('cscs');
+die('oops!');
 // Подключение к базе данных
 $servername = "localhost";
-$username = "username";
-$password = "password";
+$username = "root";
+$password = "";
 $dbname = "myDB";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -15,7 +15,8 @@ if ($conn->connect_error) {
 }
 
 // Функция для валидации email
-function validateEmail($email) {
+function validateEmail($email)
+{
     // Проверка существования почты
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return false;
@@ -24,7 +25,8 @@ function validateEmail($email) {
 }
 
 // Функция для валидации пароля
-function validatePassword($password) {
+function validatePassword($password)
+{
     // Проверка на длину пароля
     if (strlen($password) < 8) {
         return false;
@@ -60,7 +62,8 @@ function validatePassword($password) {
 }
 
 // Функция для валидации номера телефона
-function validatePhoneNumber($phoneNumber) {
+function validatePhoneNumber($phoneNumber)
+{
     // Реализация маски и проверка кода страны
     // Допустим, формат номера телефона +1234567890
     if (!preg_match('/^\+\d{11}$/', $phoneNumber)) {
@@ -70,7 +73,8 @@ function validatePhoneNumber($phoneNumber) {
 }
 
 // Функция для валидации даты рождения
-function validateDateOfBirth($dob) {
+function validateDateOfBirth($dob)
+{
     // Проверка формата даты
     $date = date_parse($dob);
     if (!$date || !checkdate($date['month'], $date['day'], $date['year'])) {
@@ -90,7 +94,8 @@ function validateDateOfBirth($dob) {
 }
 
 // Функция для валидации гендера
-function validateGender($gender) {
+function validateGender($gender)
+{
     // Проверка на соответствие допустимых значений
     $validGenders = array('М', 'Ж');
     if (!in_array($gender, $validGenders)) {
@@ -100,7 +105,8 @@ function validateGender($gender) {
 }
 
 // Функция для валидации username
-function validateUsername($username, $conn) {
+function validateUsername($username, $conn)
+{
     // Проверка на пустоту
     if (empty($username)) {
         return false;
@@ -125,7 +131,8 @@ function validateUsername($username, $conn) {
 }
 
 // Функция для валидации картинок
-function validateImages($images) {
+function validateImages($images, $conn)
+{
     // Проверка наличия файлов
     if (!isset($images['name']) || empty($images['name'])) {
         return false;
@@ -133,26 +140,36 @@ function validateImages($images) {
 
     // Проверка расширения файла
     $allowedExtensions = array('jpg', 'jpeg', 'png', 'gif');
-    foreach ($images['name'] as $imageName) {
-        $extension = pathinfo($imageName, PATHINFO_EXTENSION);
-        if (!in_array(strtolower($extension), $allowedExtensions)) {
-            return false;
-        }
+    // foreach ($images['name'] as $imageName) {
+    $extension = pathinfo($images['name'], PATHINFO_EXTENSION);
+    if (!in_array(strtolower($extension), $allowedExtensions)) {
+        return false;
     }
+    // }
 
     // Проверка размера файла
     $maxSize = 10485760; // 10 MB
-    foreach ($images['size'] as $imageSize) {
-        if ($imageSize > $maxSize) {
-            return false;
-        }
+    // foreach ($images['size'] as $imageSize) {
+    if ($images['size'] > $maxSize) {
+        return false;
     }
+    // }
 
     // Проверка имени файла
-    foreach ($images['name'] as $imageName) {
-        if (strlen($imageName) < 5 || strlen($imageName) > 50) {
-            return false;
-        }
+    // foreach ($images['name'] as $imageName) {
+    if (strlen($images['name']) < 5 || strlen($images['name']) > 50) {
+        return false;
+    }
+    // }
+
+    // Проверка на уникальность в базе данных
+    $stmt = $conn->prepare("SELECT * FROM user WHERE `image` = ?");
+    $stmt->bind_param("s", $images['name']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        return false;
     }
 
     return true;
@@ -216,10 +233,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $phoneNumber = $_POST['phone'];
-    $dob = $_POST['dob'];
+    $dob = $_POST['birth'];
     $gender = $_POST['gender'];
     $username = $_POST['username'];
-    $images = $_FILES['images'];
+    $images = $_FILES['image'];
 
     // Валидация данных
     $errors = array();
@@ -248,7 +265,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors['username'] = "Invalid username";
     }
 
-    if (!validateImages($images)) {
+    if (!validateImages($images, $conn)) {
         $errors['images'] = "Invalid images";
     }
 
@@ -257,7 +274,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         http_response_code(400); // Устанавливаем код ответа 400 (Bad Request)
         echo json_encode($errors);
     } else {
-        // Если ошибок нет, продолжаем выполнение запроса или сохраняем данные
-        echo "Data is valid. Proceed with saving or further processing";
+        // Подготовленный запрос для вставки данных
+        $stmt = $conn->prepare("INSERT INTO user (email, password, phone, birth, gender, username, image) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+        // Привязка параметров
+        $stmt->bind_param("sssssss", $email, $password, $phone, $birth, $gender, $username, $image['name']);
+
+        // Выполнение запроса
+        if ($stmt->execute()) {
+            echo "New record inserted successfully";
+        } else {
+            echo "Error: " . $stmt->error;
+        }
     }
 }
