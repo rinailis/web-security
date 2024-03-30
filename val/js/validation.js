@@ -211,6 +211,47 @@ function valedation(form) {
           result = true;
         }
       });
+
+      // проверка картинки
+      function validateImageInput(fileInput) {
+        // Получаем информацию о выбранных файлах
+        var files = fileInput.files;
+
+        // Проверка наличия выбранных файлов
+        if (files.length === 0) {
+          createError(fileInput, "*Файл не выбран" + fileName);
+            result = false;
+        }
+
+        // Проверка расширения файла, размера и имени
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          var fileName = file.name;
+          var fileSize = file.size;
+          var fileExtension = fileName.split(".").pop().toLowerCase();
+          var fileNameNotExtension = fileName.split('.').slice(0, -1).join(''); // Имя без расширения
+
+          // Проверка расширения файла
+          var allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+          var maxSize = 1 * 1024 * 1024; // 1 MB
+          if (allowedExtensions.indexOf(fileExtension) === -1) {
+            createError(fileInput, "*Расширение файла недопустимо " + fileName);
+            result = false;
+          } else if (fileSize > maxSize) {
+            createError(fileInput, "*Максимальный размер файла 1MB");
+            result = false;
+          } else if (fileNameNotExtension.length < 5 || fileNameNotExtension.length > 50) {
+            createError(
+              fileInput,
+              "*Имя файла должно быть больше 5 символов и меньше 50"
+            );
+            result = false;
+          } else {
+            result = true;
+          }
+        }
+      }
+      validateImageInput(inputImage);
     }
   });
 
