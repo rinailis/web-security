@@ -19,6 +19,8 @@
       name="keywords"
       content="купить ООО, купить ООО с расчетным счетом, купить ООО без счета, купить ООО с директором"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.3/css/intlTelInput.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.3/js/intlTelInput.min.js"></script>
   </head>
   <body>
     <div class="wrapper">
@@ -48,7 +50,7 @@
                 placeholder="Пароль"
               />
             </div>
-            <div class="wrapp-field">
+            <!-- <div class="wrapp-field">
               <input
                 class="field"
                 id="phone"
@@ -60,8 +62,13 @@
               <select id="countryCode">
                 <option value="+1">+1 (США)</option>
                 <option value="+44">+44 (Великобритания)</option>
-                <!-- Другие коды стран -->
             </select>
+            </div> -->
+            <div class="wrapp-field wrapp-phone">
+              <input type="tel" class="field" id="phone" maxlength="15" showSelectedDialCode="true" name="phone">
+            </div>
+            <div >
+              <div id="phone_error"  class="field" style="display: none;"></div>
             </div>
             <div class="wrapp-field">
               <input

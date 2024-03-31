@@ -57,10 +57,9 @@ function validatePassword($password)
 // Функция для валидации номера телефона
 function validatePhoneNumber($phoneNumber)
 {
-
     // Реализация маски и проверка кода страны
     // Допустим, формат номера телефона +1234567890
-    if (!preg_match('/^\+\d{1,3}\s\(\d{3}\)\s\d{3}-\d{4}$/', $phoneNumber)) {
+    if (!preg_match('/^\+\d{1}\(\d{3}\)-\d{3}-\d{2}-\d{2}$/', $phoneNumber)) {
         return false;
     }
     return true;
@@ -186,7 +185,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (!validatePhoneNumber($phoneNumber)) {
-        $errors['phone'] = "Invalid phone number";
+        $errors['phone'] = "Invalid phone number".$phoneNumber;
     }
 
     if (!validateDateOfBirth($dob)) {

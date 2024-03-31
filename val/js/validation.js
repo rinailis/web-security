@@ -8,54 +8,82 @@ let inputGender = document.querySelector("#gender");
 let inputUsername = document.querySelector("#username");
 let inputImage = document.querySelector("#image");
 
+var iti = window.intlTelInput(inputPhone, {
+  utilsScript:
+    "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.3/js/utils.js",
+  initialCountry: "auto",
+  separateDialCode: true,
+  preferredCountries: ["us", "ru", "fr", "de", "es"], // Список предпочтительных стран
+});
+iti.setCountry("us");
+window.countryData = iti.getSelectedCountryData().dialCode;
+
+inputPhone.addEventListener("countrychange", function () {
+  window.countryData = iti.getSelectedCountryData().dialCode;
+});
 
 // маска для телефона
-// const phoneMask = IMask(inputPhone, {
-//   mask: "+{7}(000)000-00-00",
-// });
-// function getSelectedOption() {
-//   var select = document.getElementById("countryCode");
-//   var selectedOption = select.options[select.selectedIndex];
-//   console.log("Выбранный элемент:", selectedOption.value, selectedOption.text);
-// }
+const phoneMask = IMask(inputPhone, {
+  mask: "(000)-000-00-00",
+});
+function getSelectedOption() {
+  var select = document.getElementById("countryCode");
+  var selectedOption = select.options[select.selectedIndex];
+  console.log("Выбранный элемент:", selectedOption.value, selectedOption.text);
+}
 
 // Получаем список кодов стран
 var countryCodeSelect = document.getElementById("countryCode");
 
 // Определяем маску для поля ввода телефонного номера
-var phoneMask = IMask(inputPhone, {
-  mask: [
-    {
-      mask: "+{1} (000) 000-0000",
-      startsWith: "+", // Символы, которые начинаются с плюса
-    },
-    {
-      mask: "+000 000-000-0000",
-    },
-  ],
-  dispatch: function (appended, dynamicMasked) {
-    var value = (dynamicMasked.value + appended).replace(/\D/g, "");
+// var phoneMask = IMask(inputPhone, {
+//   mask: [
+//     {
+//       mask: "+{1} (000) 000-0000",
+//       startsWith: "+", // Символы, которые начинаются с плюса
+//     },
+//     {
+//       mask: "+000 000-000-0000",
+//     },
+//   ],
+//   dispatch: function (appended, dynamicMasked) {
+//     var value = (dynamicMasked.value + appended).replace(/\D/g, "");
 
-    if (value.startsWith("0") || value.startsWith("1")) {
-      return dynamicMasked.compiledMasks[0];
-    }
+//     if (value.startsWith("0") || value.startsWith("1")) {
+//       return dynamicMasked.compiledMasks[0];
+//     }
 
-    return dynamicMasked.compiledMasks[1];
-  },
+//     return dynamicMasked.compiledMasks[1];
+//   },
+// });
+
+// открыть скрыть инпут для вводы пола
+inputGender.style.display = "none";
+function checkInputBirth() {
+  if (inputBirth.value === "") {
+    inputGender.style.display = "none";
+  } else {
+    inputGender.style.display = "block";
+  }
+}
+
+// Слушатель событий на элемент ввода для отслеживания изменений
+inputBirth.addEventListener("input", function (event) {
+  checkInputBirth();
 });
 
-// Обработчик изменения выбора кода страны
-countryCodeSelect.addEventListener("change", function () {
-  var countryCode = countryCodeSelect.value;
-  phoneMask.unmaskedValue = "+" + countryCode; // Обновляем значение маски с новым кодом страны
-  inputPhone.focus(); // Переводим фокус на поле ввода телефонного номера
-});
+// // Обработчик изменения выбора кода страны
+// countryCodeSelect.addEventListener("change", function () {
+//   var countryCode = countryCodeSelect.value;
+//   phoneMask.unmaskedValue = "+" + countryCode; // Обновляем значение маски с новым кодом страны
+//   inputPhone.focus(); // Переводим фокус на поле ввода телефонного номера
+// });
 
 const currentDate = new Date();
 let message = "";
 let condition = "";
 
-function valedation(form) {
+function validation(form) {
   function removeError(field) {
     const parent = field.parentNode;
 
@@ -95,15 +123,6 @@ function valedation(form) {
       createError(field, "*заполните поле");
       result = false;
     } else {
-      // form.querySelectorAll("#email").forEach((inputMail) => {
-      //   if (!reg.test(inputMail.value)) {
-      //     createError(inputMail, "*некорректный адрес эл.почты");
-      //     result = false;
-      //   } else {
-      //     // return true;
-      //   }
-      // });
-
       // проверка email
       let regMail =
         /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
@@ -343,19 +362,6 @@ function valedation(form) {
         } else {
           // return true;
         }
-
-        // if (!inputPassword.value.toLowerCase().includes(currentMonth)) {
-        //   createError(
-        //     inputBirth,
-        //     "*Дата не должна быть больше сегодняшнего числа"
-        //   );
-        //   result = false;
-        // } else if (currentDate.getFullYear() - inputDate.getFullYear() > 111) {
-        //   createError(inputBirth, "*Дата рождения не должна превышать 111 лет");
-        //   result = false;
-        // } else {
-        //   // return true;
-        // }
       });
 
       // проверка username
@@ -415,6 +421,29 @@ function valedation(form) {
         }
       }
       validateImageInput(inputImage);
+
+      // проверка картинки
+      function validatePhoneInput(inputPhone) {
+        let phone_eror = document.querySelector("#phone_error");
+        // Получаем информацию о выбранных файлах
+        let qNumber = window.countryData + inputPhone.value;
+        // регулярка
+        const regNumberPhone = /^\+\d{1}\(\d{3}\)-\d{3}-\d{2}-\d{2}$/;
+        window.phoneNumber = "+" + qNumber;
+        // Проверка наличия выбранных файлов
+        var digitsPhone = qNumber.replace(/\D/g, "");
+        if (digitsPhone.length > 15) {
+          createError(phone_eror, "*Телефон должен быть не более 15 символов");
+          result = false;
+        } else if (digitsPhone.length < 6) {
+          createError(phone_eror, "*Телефон должен быть не менее 6");
+          result = false;
+        } else if (regNumberPhone.test(inputPhone.value)) {
+          createError(phone_eror, "*Неверный формат номера");
+          result = false;
+        }
+      }
+      validatePhoneInput(inputPhone);
     }
   });
 
@@ -436,8 +465,9 @@ function createNotification(message, condition) {
 document.querySelectorAll(".add-form").forEach((i) => {
   i.addEventListener("submit", async function (event) {
     event.preventDefault();
-    let formData = new FormData(this);
-    if (valedation(this) == true) {
+    if (validation(this) == true) {
+      inputPhone.value = window.phoneNumber;
+      let formData = new FormData(this);
       let response = await fetch("./controllers/validation.php", {
         method: "POST",
         body: formData,
