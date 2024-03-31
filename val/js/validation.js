@@ -7,6 +7,8 @@ let inputBirth = document.querySelector("#birth");
 let inputGender = document.querySelector("#gender");
 let inputUsername = document.querySelector("#username");
 let inputImage = document.querySelector("#image");
+
+
 // маска для телефона
 // const phoneMask = IMask(inputPhone, {
 //   mask: "+{7}(000)000-00-00",
@@ -28,7 +30,7 @@ var phoneMask = IMask(inputPhone, {
       startsWith: "+", // Символы, которые начинаются с плюса
     },
     {
-      mask: "+{1}(000) 000-0000",
+      mask: "+000 000-000-0000",
     },
   ],
   dispatch: function (appended, dynamicMasked) {
@@ -234,7 +236,7 @@ function valedation(form) {
           "1q2w3e4r5t+",
           "1q2w3e4r5t=",
           "1q2w3e4",
-          "qwe"
+          "qwe",
         ];
         disallowedPasswords.forEach((disallowedPassword) => {
           if (inputPassword.value.toLowerCase().includes(disallowedPassword)) {
@@ -288,7 +290,19 @@ function valedation(form) {
           "Пример: Jan 1, 1970 или  1970,1,1 или  70/01/01 или 04 Dec 1995"
         );
         const inputDate = new Date(inputBirth.value);
-        window.years = currentDate.getFullYear() - inputDate.getFullYear();
+        // Вычисляем разницу в возрасте
+        const age = currentDate.getFullYear() - inputDate.getFullYear();
+        // Если дата рождения еще не наступила в текущем году, уменьшаем возраст на 1
+        if (
+          currentDate.getMonth() < inputDate.getMonth() ||
+          (currentDate.getMonth() === inputDate.getMonth() &&
+            currentDate.getDate() < inputDate.getDate())
+        ) {
+          age--;
+        }
+        // Проверяем, что возраст не больше 111 лет
+        window.years = age;
+        // window.years = currentDate.getFullYear() - inputDate.getFullYear();
         if (isNaN(Date.parse(inputDate))) {
           createError(
             inputBirth,
